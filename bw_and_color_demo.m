@@ -29,52 +29,12 @@ sigS = 0;
 sigT = 0;
 usedClust = false;
 usedOOSFrameSubset = false;
-% %% prep mri (brats)
-% imageDB = "brats";
-% targetMode = "T1w";
-% sourceMode = "T2w";
-% repType = "average";
-% repPoints = "BR";
-% % repPoints = ["TL", "TR", "BL", "BR"];
-% patchSize = [2 2];
-% % imNumber = [1, 68];
-% imNumber = [1, 68, 1];
-% % imNumber = [5, 90, 1];
-% % spatialSigma = [1/5, 1/5];
-% spatialSigma = [1/5, 1/5];
-% useFusedImage = false;
-% maskFirst = false;
-% [X, Y, Z, images, idx] = prepImageData(imageDB, imNumber, targetMode, sourceMode,...
-%     patchSize, repType, repPoints, spatialSigma, useFusedImage, maskFirst);
-% neighborSize = 40;
-% nodims = 60;
-% sigS = 0;
-% sigT = 0;
-% usedClust = false;
-% usedOOSFrameSubset = false;
-% %% prep mri (brainweb)
-% imageDB = "brainweb";
-% targetMode = "T1w";
-% sourceMode = "T2w";
-% repType = "average";
-% repPoints = "BR";
-% % repPoints = ["TL", "TR", "BL", "BR"];
-% patchSize = [2 2];
-% imNumber = [4, 0, 2];
-% spatialSigma = [1/5, 1/5];
-% useFusedImage = {true, "bicubic"};
-% maskFirst = false;
-% [X, Y, Z, images, idx] = prepImageData(imageDB, imNumber, targetMode, sourceMode,...
-%     patchSize, repType, repPoints, spatialSigma, useFusedImage, maskFirst);
-% neighborSize = 40;
-% nodims = 60;
-% sigS = 0;
-% sigT = 0;
-% usedClust = false;
-% usedOOSFrameSubset = false;
 %% look at images (bw - color)
 
-%% look at images (mri)
+% figure, imshow(images.rep, 'InitialMagnification', 'fit'), title('Low Res. Color')
+% figure, imshow(images.source, 'InitialMagnification', 'fit'), title('High Res. BW Image')
+% figure, imshow(images.target, 'InitialMagnification', 'fit'), title('High Res. Color')
+
 
 
 %% create embedding

@@ -27,7 +27,7 @@ function [lapX, varargout] = lapEig(X, nodims, K, varargin)
     addOptional(p, 'sigma', 0, @isnumeric)
     % addParameter(p, 'numWorkers', 1, @isnumeric)
     addParameter(p, 'beQuiet', false, @islogical)
-    parse(p, X, nodims, Ks, K, varargin{:})
+    parse(p, X, nodims, K, varargin{:})
     vars = p.Results;
 
     X = vars.X;
@@ -42,8 +42,8 @@ function [lapX, varargout] = lapEig(X, nodims, K, varargin)
     nout = max(nargout,1) - 1; %nout only counts the variables after lapX
     varargout = cell(1, nout); 
     outs = struct;
-    saveKernelDensity = nout > 4;
-    saveWeights = nout > 5;
+    saveKernelDensity = nout > 3;
+    saveWeights = nout > 4;
     
 
   
