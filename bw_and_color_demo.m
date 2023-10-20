@@ -64,6 +64,9 @@ mapSource.K = mapSource.aff;
 mapSource.max_dist = sqrt(-(2*mapSource.sigma^2)*log(min(mapSource.K(mapSource.K ~= 0), [], 'all')));
 
 %%
+% cN is the number of clusters, so set cN = 1 if you want one "global"
+% rotation
+
 cN = 4;
 if usedOOSFrameSubset
     mapSource.SampleSet = idx.maskSmall;

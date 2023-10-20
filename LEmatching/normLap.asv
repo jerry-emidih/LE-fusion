@@ -38,20 +38,15 @@ function varargout = normLap(Xt, Kt, varargin)
     end
     tic;
     if mt < 100000
-        [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'exhaustive');
+    [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'exhaustive');
     else
-        [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'kdtree');
-    end
+        e
     if isequal(Ak(:, 1), (1:mt)') % Check that each point is its own NN
         Ak = Ak(:, 2:end);
     else % Swap around to make sure each point is its own NN
         % but before swapping, double the neighborhood size to increase
         % the likelyhood of the point being in its own neighborhood
-        if mt < 100000
-            [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'exhaustive');
-        else
-            [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'kdtree');
-        end
+        [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'exhaustive');
         diffA = find(Ak(:, 1) ~= (1:mt)');
         for i = 1:size(diffA)
             if ~ismember(diffA(i), Ak(diffA(i), :)) % if each point is not even in its own NNeigborhood then idk
