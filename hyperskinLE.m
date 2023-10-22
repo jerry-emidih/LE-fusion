@@ -60,7 +60,9 @@ end
 
 % A is 1024x1024x31 (or 3 for RGB)
 
-A = double(A)./(pow2(8*(whos('A').bytes)/numel(A)) - 1);
+if isinteger(A)
+    A = double(A)./(pow2(8*(whos('A').bytes)/numel(A)) - 1);
+end
 % overengineered way to convert to a double from an int
 
 
