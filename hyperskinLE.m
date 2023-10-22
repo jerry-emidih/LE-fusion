@@ -67,7 +67,8 @@ end
 
 
 % if we want to resize by 1/2 (or some other 0 < scale < 1) in both length and width:
-% A = imresize(A, 0.5);
+% sf = 0.5; % scaling factor
+% A = imresize(A, ceil([sf, sf, 1].*size(A)));
 
 X = reshape(A, [], size(A, 3)); 
 % each pixel of A is a row of X, in column-major order
