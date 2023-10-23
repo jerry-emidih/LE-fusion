@@ -73,7 +73,7 @@ end
 X = reshape(A, [], size(A, 3)); 
 % each pixel of A is a row of X, in column-major order
 
-[mapX.vec, mapX.val, ~, mapX.sigma] = lapEig(X, 15, 50, 'sigma', 0);
+[mapX.vec, mapX.val, ~, mapX.sigma, ~, mapX.aff] = lapEig(X, 15, 50, 'sigma', 0);
 
 %% Notes on mapX:
 % .vec is the matrix of embedded coordinates
