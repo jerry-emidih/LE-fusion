@@ -52,7 +52,7 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     y = zeros(M, size(mapping.X, 2)); % preallocating preimages
     Xorig = mapping.X; % needed for part 3
 
-    opts.verbosity = 0;
+    opts.verbosity = 1;
     opts.iterations = 30;
 
     
