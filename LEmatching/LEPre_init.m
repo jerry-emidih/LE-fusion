@@ -52,10 +52,10 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     y = zeros(M, size(mapping.X, 2)); % preallocating preimages
     Xorig = mapping.X; % needed for part 3
 
-    opts.verbosity = 1;
-    opts.iterations = 30;
+    opts.verbosity = 0;
+    opts.iterations = 50;
 
-    
+    % fprintf('Finding approx. LE preimages for %d points... \n', M)
     %% Step 1:
     tau = zeros(1, M);
     thres = zeros(1, M);
@@ -136,8 +136,11 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     end  
     end
     
+    cleanupObj = onCleanup(@() clear('textprogressbar')); 
+
     % in the case of more than one out-of-sample point:
     if multi
+    textprogressbar('Finding approx. LE preimages:   ');
     for i = 2:M
         A = Psi(i, :);
         x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
@@ -183,8 +186,9 @@ function [y, varargout] = LEPre_init(Psi, mapping)
             x = U*z + x_bar;
             y(i, :)=x';
         end
-        
+        textprogressbar(floor(i*100/M));
     end
+    textprogressbar(' Done!');
     if convCheck
         varargout(1) = {conv};
     end
