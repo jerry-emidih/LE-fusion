@@ -1,4 +1,4 @@
-function [y, varargout] = LEPre_init(Psi, mapping)
+function [y, varargout] = LEPre_init(Psi, mapping, varargin)
 
     % make a function that does the preimage of an entire set of points, all
     % with the same embedding info 
@@ -20,8 +20,23 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     % (points are rows)
     
     % mapping = mapC; % test
-    % Psi = mapping.vec; % just testing for now
     
+    % Psi = mapping.vec; % just testing for now
+    p = inputParser;
+    addRequired(p, 'Psi', @isnumeric)
+    addRequired(p, 'mapping', @isstruct)
+    addParameter(p, 'numWorkers', 1, @isnumeric)
+    parse(p, Psi, mapping, varargin{:})
+    vars = p.Results;
+
+    Psi = vars.Psi;
+    mapping = vars.mapping;
+    numWorkers = vars.numWorkers;
+
+
+
+
+
     
 %     kNearest = mapping.k;
     if ~isfield(mapping,'noise')
@@ -139,55 +154,113 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     % cleanupObj = onCleanup(@() clear('textprogressbar')); 
 
     % in the case of more than one out-of-sample point:
-    if multi
-    upd = textprogressbar(M, 'startmsg', 'Finding preimages...', 'updatestep', ceil(.01*M));
-    for i = 2:M
-        A = Psi(i, :);
-        x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
-        k_hat = spgl1(coeffs, A'/norm(A),tau(i), [], x0, opts);
-        k_hat = (k_hat)*norm(A);
-        if convCheck, conv(i) = info.stat < 5; end
-        
-        k_hat = k_hat*exp(size(mapping.X,2) * ...
-        mapping.noise^2/(4*mapping.sigma^2));    
-        
-        near = sum(k_hat > (1e-3)*max(k_hat));
-        
-        kNearest = min(near, mapping.k);
-        % Solve for degrees:
+    
+
+    if numWorkers == 1
+        upd = textprogressbar(M, 'startmsg', 'Finding preimages...', 'updatestep', ceil(.01*M));
+        for i = 2:M
+            A = Psi(i, :);
+            x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
+            k_hat = spgl1(coeffs, A'/norm(A),tau(i), [], x0, opts);
+            k_hat = (k_hat)*norm(A);
+            if convCheck, conv(i) = info.stat < 5; end
             
-        
-        [k_val, index] = sort(k_hat,'descend');
-        c_i = k_val(1:kNearest) .*sqrt(mapping.aff(index(1:kNearest)));
-        e = c_i * sum(c_i);
-        
-        %MDS
-        % Jerry here: adding a fix for the situation in which all neighbors are
-        % identical; in that case, just assign x to be that constant value of all
-        % the neighbors
-        d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
-        
-        X = Xorig(index(1:kNearest),:)';
-        mean_x = mean(X, 2);
-        if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
-            y(i, :) = mean_x';
-        else
-            H = eye(kNearest) - 1/kNearest * ones(kNearest);
-            [U,Sigma,V] = svd(X*H,'econ');
-            totalE = sum(diag(Sigma));
-            indexE = cumsum(diag(Sigma)/totalE) < .99;
-            indexE(find(indexE==0,1,'first'))=1;
-        
-            U=U(:,indexE); Sigma=Sigma(indexE,indexE); V=V(:,indexE);
-        
-            Z = Sigma*V';
-            z = -1/2 * diag(1./diag(Sigma)) * V' * (d_nearest - sum(Z.^2,1)');
-            x_bar = 1/kNearest * sum(X,2);
-            x = U*z + x_bar;
-            y(i, :)=x';
+            k_hat = k_hat*exp(size(mapping.X,2) * ...
+            mapping.noise^2/(4*mapping.sigma^2));    
+            
+            near = sum(k_hat > (1e-3)*max(k_hat));
+            
+            kNearest = min(near, mapping.k);
+            % Solve for degrees:
+                
+            
+            [k_val, index] = sort(k_hat,'descend');
+            c_i = k_val(1:kNearest) .*sqrt(mapping.aff(index(1:kNearest)));
+            e = c_i * sum(c_i);
+            
+            %MDS
+            % Jerry here: adding a fix for the situation in which all neighbors are
+            % identical; in that case, just assign x to be that constant value of all
+            % the neighbors
+            d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
+            
+            X = Xorig(index(1:kNearest),:)';
+            mean_x = mean(X, 2);
+            if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
+                y(i, :) = mean_x';
+            else
+                H = eye(kNearest) - 1/kNearest * ones(kNearest);
+                [U,Sigma,V] = svd(X*H,'econ');
+                totalE = sum(diag(Sigma));
+                indexE = cumsum(diag(Sigma)/totalE) < .99;
+                indexE(find(indexE==0,1,'first'))=1;
+            
+                U=U(:,indexE); Sigma=Sigma(indexE,indexE); V=V(:,indexE);
+            
+                Z = Sigma*V';
+                z = -1/2 * diag(1./diag(Sigma)) * V' * (d_nearest - sum(Z.^2,1)');
+                x_bar = 1/kNearest * sum(X,2);
+                x = U*z + x_bar;
+                y(i, :)=x';
+            end
+            pause(0.02)
+            upd(i);
         end
-        pause(0.02)
-        upd(i);
+    else
+        if isempty(gcp('nocreate'))
+            parpool('local', numWorkers);
+        else
+            disp('Parallel Pool is already running...')
+        end
+        parfor i = 2:M
+            A = Psi(i, :);
+            x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
+            k_hat = spgl1(coeffs, A'/norm(A),tau(i), [], x0, opts);
+            k_hat = (k_hat)*norm(A);
+            if convCheck, conv(i) = info.stat < 5; end
+            
+            k_hat = k_hat*exp(size(mapping.X,2) * ...
+            mapping.noise^2/(4*mapping.sigma^2));    
+            
+            near = sum(k_hat > (1e-3)*max(k_hat));
+            
+            kNearest = min(near, mapping.k);
+            % Solve for degrees:
+                
+            
+            [k_val, index] = sort(k_hat,'descend');
+            c_i = k_val(1:kNearest) .*sqrt(mapping.aff(index(1:kNearest)));
+            e = c_i * sum(c_i);
+            
+            %MDS
+            % Jerry here: adding a fix for the situation in which all neighbors are
+            % identical; in that case, just assign x to be that constant value of all
+            % the neighbors
+            d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
+            
+            X = Xorig(index(1:kNearest),:)';
+            mean_x = mean(X, 2);
+            if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
+                y(i, :) = mean_x';
+            else
+                H = eye(kNearest) - 1/kNearest * ones(kNearest);
+                [U,Sigma,V] = svd(X*H,'econ');
+                totalE = sum(diag(Sigma));
+                indexE = cumsum(diag(Sigma)/totalE) < .99;
+                indexE(find(indexE==0,1,'first'))=1;
+            
+                U=U(:,indexE); Sigma=Sigma(indexE,indexE); V=V(:,indexE);
+            
+                Z = Sigma*V';
+                z = -1/2 * diag(1./diag(Sigma)) * V' * (d_nearest - sum(Z.^2,1)');
+                x_bar = 1/kNearest * sum(X,2);
+                x = U*z + x_bar;
+                y(i, :)=x';
+            end
+
+        end
+
+
     end
     if convCheck
         varargout(1) = {conv};
