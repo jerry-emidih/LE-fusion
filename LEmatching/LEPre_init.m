@@ -136,11 +136,11 @@ function [y, varargout] = LEPre_init(Psi, mapping)
     end  
     end
     
-    cleanupObj = onCleanup(@() clear('txtprogressbar')); 
+    cleanupObj = onCleanup(@() clear('textprogressbar')); 
 
     % in the case of more than one out-of-sample point:
     if multi
-    txtprogressbar
+    textprogressbar('Finding approx. LE preimages:   ');
     for i = 2:M
         A = Psi(i, :);
         x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
@@ -186,9 +186,9 @@ function [y, varargout] = LEPre_init(Psi, mapping)
             x = U*z + x_bar;
             y(i, :)=x';
         end
-        txtprogressbar(floor(i*100/M))
+        textprogressbar(floor(i*100/M));
     end
-    % textprogressbar(' Done!');
+    textprogressbar(' Done!');
     if convCheck
         varargout(1) = {conv};
     end
