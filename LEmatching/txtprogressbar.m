@@ -41,9 +41,9 @@ function txtprogressbar(fraction_done)
     % Display text
     clc;
     disp(progress_msg);
-    % disp('|==================================================|');%uncomment these lines if you want a progress bar
-    % disp(['|' char('#'*ones(1, floor(percent_done/2))) '|'])
-    % disp('|==================================================|');
+    disp('|==================================================|');%uncomment these lines if you want a progress bar
+    disp(['|' char('#'*ones(1, floor(percent_done/2))) '|'])
+    disp('|==================================================|');
     % If task completed, clear vars, then exit
     if percent_done==100 % Task completed
         clear start_time% Clear persistent vars
