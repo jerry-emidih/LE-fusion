@@ -186,6 +186,7 @@ function [y, varargout] = LEPre_init(Psi, mapping)
             x = U*z + x_bar;
             y(i, :)=x';
         end
+        pause(0.02)
         textprogressbar(floor(i*100/M));
     end
     textprogressbar(' Done!');
