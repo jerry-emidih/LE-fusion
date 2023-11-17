@@ -140,7 +140,7 @@ function [y, varargout] = LEPre_init(Psi, mapping)
 
     % in the case of more than one out-of-sample point:
     if multi
-    upd = textprogressbar(M, 'startmsg', "Finding preimages...", 'updatestep', ceil(.01*M));
+    upd = textprogressbar(M, 'startmsg', 'Finding preimages...', 'updatestep', ceil(.01*M));
     for i = 2:M
         A = Psi(i, :);
         x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
