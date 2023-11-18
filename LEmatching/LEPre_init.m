@@ -210,25 +210,33 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
         if isempty(gcp('nocreate'))
             parpool('local', numWorkers);
         else
-            disp('Parallel Pool is already running...')
+            % disp('Parallel Pool is already running...')
+            fprintf('Parallel Pool is already running...\n')
         end
+        mx_size = size(mapping.X, 2);
+        kNearestBig = zeros(M, 1);
+        indexBig = cell(M, 1);
+        d_nearestBig = cell(M, 1);
+        
         parfor i = 2:M
             A = Psi(i, :);
             x0 = ((cfs*A' >= thres(i)).*(cfs*A'))/norm(A);
             k_hat = spgl1(coeffs, A'/norm(A),tau(i), [], x0, opts);
             k_hat = (k_hat)*norm(A);
-            if convCheck, conv(i) = info.stat < 5; end
+            % if convCheck, conv(i) = info.stat < 5; end
             
-            k_hat = k_hat*exp(size(mapping.X,2) * ...
+            k_hat = k_hat*exp(mx_size * ...
             mapping.noise^2/(4*mapping.sigma^2));    
             
             near = sum(k_hat > (1e-3)*max(k_hat));
             
             kNearest = min(near, mapping.k);
+            kNearestBig(i) = kNearest;
             % Solve for degrees:
                 
             
             [k_val, index] = sort(k_hat,'descend');
+            indexBig{i} = index(1:kNearest);
             c_i = k_val(1:kNearest) .*sqrt(mapping.aff(index(1:kNearest)));
             e = c_i * sum(c_i);
             
@@ -237,8 +245,19 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
             % identical; in that case, just assign x to be that constant value of all
             % the neighbors
             d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
-            
-            X = Xorig(index(1:kNearest),:)';
+            d_nearestBig{i} = d_nearest;
+        end
+
+        
+        % X = Xorig(index(1:kNearest),:)';
+        XBig = arrayfun(@(ii) Xorig(indexBig{ii}, :)', 2:M, 'UniformOutput', false);
+        XBig{end+1} = {};
+        XBig = circshift(XBig, 1);
+
+        parfor i = 2:M
+            X = XBig{i};
+            kNearest = kNearestBig(i);
+            d_nearest = d_nearestBig{i};
             mean_x = mean(X, 2);
             if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
                 y(i, :) = mean_x';
