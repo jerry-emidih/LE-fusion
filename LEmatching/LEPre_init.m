@@ -65,7 +65,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
     cfs = mapping.vec*IL; % for weights and for x0
     
     y = zeros(M, size(mapping.X, 2)); % preallocating preimages
-    Xorig = mapping.X; % needed for part 3
+    % Xorig = mapping.X; % needed for part 3
 
     opts.verbosity = 0;
     opts.iterations = 50;
@@ -126,7 +126,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
     % the neighbors
     d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
     
-    X = Xorig(index(1:kNearest),:)';
+    X = mapping.X(index(1:kNearest),:)';
     mean_x = mean(X, 2);
     if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
         y(i, :) = mean_x';
@@ -184,7 +184,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
             % the neighbors
             d_nearest = -2*mapping.sigma^2 * log( e(1:kNearest) );
             
-            X = Xorig(index(1:kNearest),:)';
+            X = mapping.X(index(1:kNearest),:)';
             mean_x = mean(X, 2);
             if isequal(X, diag(mean_x)*ones(size(X, 1), kNearest))
                 y(i, :) = mean_x';
@@ -250,7 +250,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
 
         
         % X = Xorig(index(1:kNearest),:)';
-        XBig = arrayfun(@(ii) Xorig(indexBig{ii}, :)', 2:M, 'UniformOutput', false);
+        XBig = arrayfun( @(ii) mapping.X(indexBig{ii}, :)', 2:M, 'UniformOutput', false);
         XBig{end+1} = {};
         XBig = circshift(XBig, 1);
 
