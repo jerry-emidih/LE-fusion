@@ -67,7 +67,7 @@ end
 % Quick return for the easy cases.
 if isscalar(d)  &&  d == 0
    x     = b;
-   lamda = 0;
+   lambda = 0;
    return
 end
 

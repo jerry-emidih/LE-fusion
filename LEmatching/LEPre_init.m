@@ -57,6 +57,11 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
     convCheck = nargout > 1;
     conv = false(M, 1); % checking the convergence of out-of-sample points
     multi = M > 1;
+    if isempty(gcp('nocreate'))
+        parpool('local', numWorkers);
+    else
+        fprintf('Parallel Pool is already running...\n')
+    end
 %     N = size(mapping.vec, 1); % number of in-sample points
     IL = diag(ones(size(mapping.val)) - mapping.val);
     invIL = diag(1./(ones(size(mapping.val)) - mapping.val));
@@ -207,12 +212,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
             upd(i);
         end
     else
-        if isempty(gcp('nocreate'))
-            parpool('local', numWorkers);
-        else
-            % disp('Parallel Pool is already running...')
-            fprintf('Parallel Pool is already running...\n')
-        end
+        fprintf('Finding kernel vectors... \n')
         mx_size = size(mapping.X, 2);
         kNearestBig = zeros(M, 1);
         indexBig = cell(M, 1);
@@ -248,7 +248,7 @@ function [y, varargout] = LEPre_init(Psi, mapping, varargin)
             d_nearestBig{i} = d_nearest;
         end
 
-        
+        fprintf('Finding preimages... \n')
         % X = Xorig(index(1:kNearest),:)';
         XBig = arrayfun( @(ii) mapping.X(indexBig{ii}, :)', 2:M, 'UniformOutput', false);
         XBig{end+1} = {};
