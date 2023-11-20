@@ -38,7 +38,11 @@ function varargout = normLap(Xt, Kt, varargin)
     end
     tic;
     if mt < 200000
-        [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'exhaustive');
+        try
+            [Ak, distA] = knnsearch(Xt, Xt, K=Kt + 1, NSMethod='exhaustive', Distance='fasteuclidean');
+        catch
+            [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'exhaustive');
+        end
     else
         [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'kdtree');
     end
@@ -48,7 +52,11 @@ function varargout = normLap(Xt, Kt, varargin)
         % but before swapping, double the neighborhood size to increase
         % the likelyhood of the point being in its own neighborhood
         if mt < 200000
-            [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'exhaustive');
+            try
+                [Ak, distA] = knnsearch(Xt, Xt, K=min(ceil((3*mt)/2), 10*(Kt + 1)), NSMethod='exhaustive', Distance='fasteuclidean');
+            catch
+                [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'exhaustive');
+            end
         else
             [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'kdtree');
         end
