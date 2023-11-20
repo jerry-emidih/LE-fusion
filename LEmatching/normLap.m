@@ -37,7 +37,7 @@ function varargout = normLap(Xt, Kt, varargin)
         fprintf('Finding %d nearest neighbors... \n', Kt)
     end
     tic;
-    if mt < 100000
+    if mt < 200000
         [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'exhaustive');
     else
         [Ak, distA] = knnsearch(Xt, Xt, 'K', Kt + 1, 'NSMethod', 'kdtree');
@@ -47,7 +47,7 @@ function varargout = normLap(Xt, Kt, varargin)
     else % Swap around to make sure each point is its own NN
         % but before swapping, double the neighborhood size to increase
         % the likelyhood of the point being in its own neighborhood
-        if mt < 100000
+        if mt < 200000
             [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'exhaustive');
         else
             [Ak, distA] = knnsearch(Xt, Xt, 'K', min(ceil((3*mt)/2), 10*(Kt + 1)), 'NSMethod', 'kdtree');
