@@ -107,10 +107,10 @@ function varargout = normLap(Xt, Kt, varargin)
     else
         kDen = [];
     end
-    
-    W = max(W, W'); % now W is an adjacency matrix of an undirected graph
+
     W(W < eps) = 0; % dropping sufficiently weak connections
-    W = min(W, W');
+    W = max(W, W'); % now W is an adjacency matrix of an undirected graph
+    % W = max(W, W');
     if getAff
         wt = W;
     else
