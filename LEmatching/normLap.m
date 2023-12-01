@@ -93,7 +93,7 @@ function varargout = normLap(Xt, Kt, varargin)
         sig = sg;
     end
     countA = nnz(distA);
-    distA = exp(-(distA.^2)./(2*(sg.^2))); 
+    distA = 1 + expm1(-(distA.^2)./(2*(sg.^2))); 
     if nnz(distA) < countA
         warning('Bad sigma choice reduced unsymmetric edges from %d to %d.', countA, nnz(distA))
     end
@@ -108,7 +108,7 @@ function varargout = normLap(Xt, Kt, varargin)
         kDen = [];
     end
 
-    W(W < eps) = 0; % dropping sufficiently weak connections
+%     W(W < eps) = 0; % dropping sufficiently weak connections
     W = max(W, W'); % now W is an adjacency matrix of an undirected graph
     % W = max(W, W');
     if getAff
