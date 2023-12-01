@@ -89,7 +89,7 @@ function varargout = normLap(Xt, Kt, varargin)
 %         sg = sum(sum(distA)) / nnz(distA);
 %         [st, me] = std(distA, 1, 'all');
 %         sg = st + me;
-        sg = prctile(distA,80, 'all');
+        sg = prctile(distA,80, 'all', Method="approximate");
         sig = sg;
     end
     countA = nnz(distA);
