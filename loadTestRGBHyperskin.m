@@ -31,7 +31,7 @@ for ii = 1:size(runID, 1)
         recycle('off')
         poseList = reshape(["neutral_", "smile_"] + ["front", "left", "right"]', 1, []);
         dataDir = modFolder(modNum);
-        fileName = sprintf("p%03d_%s.", runID(ii, 2), poseList(runID(ii, 2)));
+        fileName = sprintf("p%03d_%s.", runID(ii, 2), poseList(runID(ii, 1)));
         dataUrl = dataSite + dataDir;
         options = weboptions('RequestMethod','get', 'ContentType', 'image');
         
