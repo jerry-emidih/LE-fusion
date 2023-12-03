@@ -269,7 +269,7 @@ function info = rotHyperskinFunTest(startPath, outPath, arg)
             nx, arg.faceNumber, arg.poseNumber, arg.modName(1), arg.modName(2));
         
         
-        save(outPath + fileName, 'cube', '-v7.3')
+        save(outPath + fileName + "mat", 'cube', '-v7.3')
         if arg.keepVars
         info.saveFile = saveFile;
         save(saveFile, '-regexp', '^((?!map).)*$'); % save everything except map*
